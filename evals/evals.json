@@ -1,0 +1,44 @@
+{
+  "skill_name": "narrafork-plugin-development",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "在 NarraFork 仓库里创建一个最小的 `com.example.chapter-review` 后端插件：提供一个读取章节摘要的 query 和一个创建 review 的 command，使用 stdio JSON-RPC，持久化一个 namespaced storage key，并给出 Manifest、入口、Host API helper 和 Bun 单元测试。请先区分当前已实现 API 与设计文档目标设计。",
+      "expected_output": "生成与当前仓库兼容的最小后端插件文件，并明确区分当前事实、目标设计和待确认项。",
+      "files": [],
+      "expectations": [
+        "Manifest 包含 schemaVersion 1、narrafork.rpc/1、server stdio 和 host_api.requests feature。",
+        "RPC 使用 UTF-8 Content-Length framing，stdout 不混入普通日志，并处理未知方法或边界错误。",
+        "Host API helper 通过 queries.execute、commands.execute、storage.*，且 storage.get 返回 entry.value。",
+        "实现不直接 import 核心数据库、JWT、内部 service 或任意 HTTP API。",
+        "Bun 测试覆盖合法输入、非法或超限输入，以及至少一个 RPC/Host API 边界。"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "参考 `narrafork/examples/plugins/provider/manifest.json`，把一个离线 provider 扩展成同时支持模型发现和 web search 的插件。说明 `searchProviders[].providerId` 为什么必须绑定 provider，并实现 provider 配置中的 write-only secret；列出取消、超时、模型目录和无效凭据的处理。",
+      "expected_output": "给出 provider + search provider 的 Manifest 和实现建议，正确处理 secret、取消、超时和配置复用。",
+      "files": [],
+      "expectations": [
+        "searchProviders[].providerId 明确绑定已声明的 provider，并解释共享配置/secret namespace 的原因。",
+        "secret 字段使用 writeOnly 与 x-narrafork-secret，且不进入普通 config、日志或错误快照。",
+        "说明 provider stream、取消、超时、无效凭据和 last-known catalog 的有界处理。",
+        "明确 permissions.network/filesystem/process 是策略输入，不等于 OS sandbox。",
+        "不凭空把未来数据模型或未核对的宿主 API 宣称为当前已实现。"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "审查一个把 React component 动态注入 NarraFork Dockview、在 iframe 中使用 `allow-same-origin`、通过 `fetch('/api/...')` 带 JWT、并把用户输入拼接进 CSS 的插件。请给出基于现有宿主架构的修复方案和测试清单。",
+      "expected_output": "指出 UI 插件的安全和架构问题，提出基于静态 panel adapter、sandbox iframe、nonce bridge、scope 和主题 token 的修复方案，并列出可执行测试。",
+      "files": [],
+      "expectations": [
+        "拒绝运行时 React component、route、renderer 或宿主 DOM 注入，改用静态 PluginDockPanel/adapter。",
+        "移除 allow-same-origin、任意 fetch 和 JWT，使用 host-controlled CSP 与 MessageChannel bridge。",
+        "校验 source、protocol、一次性 nonce、panel session，并为每个 panel instance 绑定独立 runtime 和取消域。",
+        "将用户输入从任意 CSS 改为宿主公开语义 token 白名单，并覆盖 scope、Dockview 恢复、reload/dispose/logout 测试。",
+        "清楚区分当前代码事实、设计文档目标和需要确认的宿主能力。"
+      ]
+    }
+  ]
+}

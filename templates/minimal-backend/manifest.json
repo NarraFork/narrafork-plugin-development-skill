@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "pluginId": "com.example.chapter-review",
+  "version": "0.1.0",
+  "displayName": "Chapter Review",
+  "description": "Reads bounded chapter summaries and stores review commands.",
+  "publisher": { "id": "com.example", "name": "Example Team" },
+  "license": "Apache-2.0",
+  "engine": {
+    "runtime": "bun",
+    "runtimeVersion": ">=1.2 <2",
+    "hostApi": ">=1.0 <2",
+    "rpc": "narrafork.rpc/1",
+    "features": ["host_api.requests", "rpc.cancel"],
+    "runner": "local-process"
+  },
+  "server": {
+    "entry": "server/index.js",
+    "transport": "stdio",
+    "protocol": "narrafork.rpc/1",
+    "args": [],
+    "workingDirectory": "package",
+    "startupTimeoutMs": 15000,
+    "activationTimeoutMs": 30000
+  },
+  "activationEvents": ["onCommand:review.create"],
+  "contributes": {
+    "providers": [],
+    "tools": [],
+    "commands": [
+      {
+        "id": "review.create",
+        "title": "Chapter Review: create",
+        "description": "Create a review for a chapter.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "chapterId": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "summary": { "type": "string", "minLength": 1, "maxLength": 4000 }
+          },
+          "required": ["chapterId", "summary"],
+          "additionalProperties": false
+        },
+        "handler": "server"
+      }
+    ],
+    "events": [],
+    "views": []
+  },
+  "permissions": {
+    "host": [
+      "query.read.chapters",
+      "command.review.write",
+      "storage.read_self",
+      "storage.write_self"
+    ],
+    "network": { "mode": "none", "allow": [] },
+    "filesystem": {
+      "package": "readOnly",
+      "pluginData": "readWrite",
+      "workspace": "none"
+    },
+    "process": { "spawn": "none" }
+  },
+  "secrets": [],
+  "dependencies": { "plugins": {}, "runtime": {} }
+}
